@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JSONObject baseJsonResponse = new JSONObject(newsJSON);
-                JSONObject baseJsonResult = baseJsonResponse.getJSONObject("reponse");
+                JSONObject baseJsonResult = baseJsonResponse.getJSONObject("response");
 
                 if (baseJsonResponse.length() > 0){
                     JSONArray featureArray = baseJsonResult.getJSONArray("results");
