@@ -3,14 +3,22 @@ package com.example.enelson.newsfeed;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -107,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (urlConnection.getResponseCode() == 200) {
                     inputStream = urlConnection.getInputStream();
-                    jsonResponse = readFromstream(inputStream);
+                    jsonResponse = readFromStream(inputStream);
                 } else {
                     Log.e("Log", "Response" + urlConnection.getResponseCode());
                 }
@@ -122,6 +130,50 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             return jsonResponse;
+        }
+
+        /**
+         * Convert the {@link InputStream} to a String
+         */
+        private String readFromStream(InputStream inputStream) throws IOException{
+            StringBuilder output = new StringBuilder();
+            if(inputStream != null){
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+                String line = reader.readLine();
+                while (line != null) {
+                    output.append(line);
+                    line = reader.readLine();
+                }
+            }
+            return output.toString();
+        }
+
+        /**
+         * Return {@link Event} after parsing out JSON news info
+         */
+
+        private Event extractFeatureFromJson(String newsJSON){
+            if (TextUtils.isEmpty(newsJSON)) {
+                return null;
+            }
+
+            try {
+                JSONObject baseJsonResponse = new JSONObject(newsJSON);
+                JSONObject baseJsonResult = baseJsonResponse.getJSONObject("reponse");
+
+                if (baseJsonResponse.length() > 0){
+                    JSONArray featureArray = baseJsonResult.getJSONArray("results");
+                    JSONObject properties = featureArray.getJSONObject(0);
+
+                    String title = properties.getString("id");
+
+                    return new Event(title);
+                }
+            } catch (JSONException e){
+                Log.e("Log", "Error parsing news", e);
+            }
+            return null;
         }
     }
 }
