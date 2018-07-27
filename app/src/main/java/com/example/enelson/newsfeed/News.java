@@ -20,7 +20,7 @@ public class News {
     private String mAuthorName;
 
     /** Date news story published */
-    private Date mArticleDate;
+    private String mArticleDate;
 
     /** Website URL of the story */
     private String mURL;
@@ -35,7 +35,7 @@ public class News {
      * @param url is the url of the story
      */
 
-    public News(String storyTitle, String storySection, String storyAuthor, Date storyDate, String url){
+    public News(String storyTitle, String storySection, String storyAuthor, String storyDate, String url){
 
         mTitle = storyTitle;
         mSection = storySection;
@@ -69,7 +69,7 @@ public class News {
      * Returns date of news story
      */
 
-    public Date getArticleDate() {
+    public String getArticleDate() {
         return mArticleDate;
     }
 

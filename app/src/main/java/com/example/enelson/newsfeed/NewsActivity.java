@@ -45,7 +45,7 @@ public class NewsActivity extends AppCompatActivity
 
     /** URL for Guardian news data */
     private static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?q=science&api-key=TEST";
+            "https://content.guardianapis.com/search?q=science&api-key=test";
 
 
     /**
