@@ -16,9 +16,6 @@ public class News {
     /** Section of the news story */
     private String mSection;
 
-    /** Author name of the news story */
-    private String mAuthorName;
-
     /** Date news story published */
     private String mArticleDate;
 
@@ -30,16 +27,14 @@ public class News {
      *
      * @param storyTitle is the title of the story
      * @param storySection is the section of the story
-     * @param storyAuthor is the author of the story
      * @param storyDate is the date of the story
      * @param url is the url of the story
      */
 
-    public News(String storyTitle, String storySection, String storyAuthor, String storyDate, String url){
+    public News(String storyTitle, String storySection, String storyDate, String url){
 
         mTitle = storyTitle;
         mSection = storySection;
-        mAuthorName = storyAuthor;
         mArticleDate = storyDate;
         mURL = url;
     }
@@ -60,13 +55,6 @@ public class News {
     }
     /**
      * Returns author of news story
-     */
-
-    public String getAuthorName() {
-        return mAuthorName;
-    }
-    /**
-     * Returns date of news story
      */
 
     public String getArticleDate() {

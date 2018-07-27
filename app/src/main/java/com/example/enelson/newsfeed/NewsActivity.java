@@ -22,24 +22,13 @@ import android.widget.TextView;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class NewsActivity extends AppCompatActivity
-        implements LoaderCallbacks<List<News>>, SharedPreferences.OnSharedPreferenceChangeListener {
+        implements LoaderCallbacks<List<News>> {
 
     private static final String LOG_TAG = NewsActivity.class.getName();
 
@@ -77,7 +66,7 @@ public class NewsActivity extends AppCompatActivity
 
         newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long 1) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
                 News currentNews = mAdapter.getItem(position);
 
@@ -122,7 +111,7 @@ public class NewsActivity extends AppCompatActivity
         mEmptyStateTextView.setText(R.string.no_news);
 
         if (news != null && !news.isEmpty()){
-            updateUi(news);
+            mAdapter.addAll(news);
         }
     }
 
@@ -130,7 +119,6 @@ public class NewsActivity extends AppCompatActivity
     public void onLoaderReset(Loader<List<News>> loader){
         mAdapter.clear();
     }
-
 
 
 }

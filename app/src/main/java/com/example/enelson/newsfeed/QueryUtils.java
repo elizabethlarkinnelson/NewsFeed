@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -122,11 +123,13 @@ public class QueryUtils {
 
                 String title = currentNews.getString("webTitle");
                 String section = currentNews.getString("sectionName");
-                String author = currentNews.getString("sectionId");
                 String date = currentNews.getString("webPublicationDate");
                 String url = currentNews.getString("webUrl");
 
-                News story = new News(title, section, author, date, url);
+                date = date.substring(0,10);
+
+
+                News story = new News(title, section, date, url);
 
                 news.add(story);
             }
