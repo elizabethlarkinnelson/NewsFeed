@@ -20,10 +20,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-public class MainActivity extends AppCompatActivity {
+public class NewsActivity extends AppCompatActivity {
 
     private static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?q=debates&api-key=FILLMEIN";
+            "https://content.guardianapis.com/search?q=science&api-key=test";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Update the page to show information for {@link Event}
+     * Update the page to show information for {@link News}
      */
-    private void updateUi(Event news){
+    private void updateUi(News news){
 
         TextView titleTextView = (TextView) findViewById(R.id.title);
         titleTextView.setText(news.title);
@@ -47,10 +47,10 @@ public class MainActivity extends AppCompatActivity {
      * The UI will then update with the first news story
      */
 
-    private class NewsAsyncTask extends AsyncTask<URL, Void, Event> {
+    private class NewsAsyncTask extends AsyncTask<URL, Void, News> {
 
         @Override
-        protected Event doInBackground(URL... urls){
+        protected News doInBackground(URL... urls){
 
             URL url = createUrl(GUARDIAN_REQUEST_URL);
 
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Log","Http request error", e);
             }
 
-            Event news = extractFeatureFromJson(jsonResponse);
+            News news = extractFeatureFromJson(jsonResponse);
 
             return news;
         }
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
          * Update page with news
          */
         @Override
-        protected void onPostExecute(Event news){
+        protected void onPostExecute(News news){
             if (news == null){
                 return;
             }
@@ -136,7 +136,9 @@ public class MainActivity extends AppCompatActivity {
          * Convert the {@link InputStream} to a String
          */
         private String readFromStream(InputStream inputStream) throws IOException{
+
             StringBuilder output = new StringBuilder();
+
             if(inputStream != null){
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
                 BufferedReader reader = new BufferedReader(inputStreamReader);
@@ -150,10 +152,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * Return {@link Event} after parsing out JSON news info
+         * Return {@link News} after parsing out JSON news info
          */
 
-        private Event extractFeatureFromJson(String newsJSON){
+        private News extractFeatureFromJson(String newsJSON){
             if (TextUtils.isEmpty(newsJSON)) {
                 return null;
             }
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String title = properties.getString("id");
 
-                    return new Event(title);
+                    return new News(title);
                 }
             } catch (JSONException e){
                 Log.e("Log", "Error parsing news", e);
