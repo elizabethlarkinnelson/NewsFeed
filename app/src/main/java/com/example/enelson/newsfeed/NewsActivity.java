@@ -1,11 +1,26 @@
 package com.example.enelson.newsfeed;
 
+import android.app.LoaderManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.Loader;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,163 +34,103 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NewsActivity extends AppCompatActivity {
 
+public class NewsActivity extends AppCompatActivity
+        implements LoaderCallbacks<List<News>>, SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String LOG_TAG = NewsActivity.class.getName();
+
+    /** URL for Guardian news data */
     private static final String GUARDIAN_REQUEST_URL =
-            "https://content.guardianapis.com/search?q=science&api-key=test";
+            "https://content.guardianapis.com/search?q=science&api-key=TEST";
+
+
+    /**
+     * Constant value for the news loader ID. Helps with multiple  loaders
+     */
+
+    private static final int NEWS_LOADER_ID = 1;
+
+    /** Adapter for list of news stories */
+    private NewsAdapter mAdapter;
+
+    /** When list is empty, textview that is displayed */
+    private TextView mEmptyStateTextView;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.news_activity);
 
-        NewsAsyncTask task = new NewsAsyncTask();
-        task.execute();
-    }
+        ListView newsListView = (ListView) findViewById(R.id.list);
 
-    /**
-     * Update the page to show information for {@link News}
-     */
-    private void updateUi(News news){
+        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        newsListView.setEmptyView(mEmptyStateTextView);
 
-        TextView titleTextView = (TextView) findViewById(R.id.title);
-        titleTextView.setText(news.title);
-    }
+        mAdapter = new NewsAdapter(this, new ArrayList<News>());
 
-    /**
-     * {@link AsyncTask} to perform the network request on a background thread.
-     * The UI will then update with the first news story
-     */
+        newsListView.setAdapter(mAdapter);
 
-    private class NewsAsyncTask extends AsyncTask<URL, Void, News> {
 
-        @Override
-        protected News doInBackground(URL... urls){
+        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long 1) {
 
-            URL url = createUrl(GUARDIAN_REQUEST_URL);
+                News currentNews = mAdapter.getItem(position);
 
-            String jsonResponse = "";
-            try {
-                jsonResponse = makeHttpRequest(url);
-            } catch (IOException e){
-                Log.e("Log","Http request error", e);
+                Uri newsUri = Uri.parse(currentNews.getUrl());
+
+                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, newsUri);
+
+                startActivity(websiteIntent);
             }
+        });
 
-            News news = extractFeatureFromJson(jsonResponse);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            return news;
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()){
+            LoaderManager loaderManager = getLoaderManager();
+            loaderManager.initLoader(NEWS_LOADER_ID, null, this);
+        } else {
+            View loadingIndicator = findViewById(R.id.loading_indicator);
+            loadingIndicator.setVisibility(View.GONE);
+
+            mEmptyStateTextView.setText(R.string.no_internet_connection);
         }
+    }
 
-        /**
-         * Update page with news
-         */
-        @Override
-        protected void onPostExecute(News news){
-            if (news == null){
-                return;
-            }
+    @Override
+    public Loader<List<News>> onCreateLoader(int i, Bundle bundle) {
 
+        Uri baseUri = Uri.parse(GUARDIAN_REQUEST_URL);
+
+        return new NewsLoader(this, baseUri.toString());
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<News>> loader, List<News> news){
+
+        View loadingIndicator = findViewById(R.id.loading_indicator);
+        loadingIndicator.setVisibility(View.GONE);
+
+        mEmptyStateTextView.setText(R.string.no_news);
+
+        if (news != null && !news.isEmpty()){
             updateUi(news);
         }
-
-        /**
-         * Create new URL object from input string
-         */
-        private URL createUrl(String urlString){
-            URL url = null;
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException exception){
-                Log.e("Log","URL Error", exception);
-                return null;
-            }
-            return url;
-        }
-
-        /**
-         * Call the HTTP request and return response string
-         */
-
-        private String makeHttpRequest(URL url) throws IOException {
-            String jsonResponse = "";
-
-            if(url == null){
-                return jsonResponse;
-            }
-
-            HttpURLConnection urlConnection = null;
-            InputStream inputStream = null;
-
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setReadTimeout(10000);
-                urlConnection.setConnectTimeout(15000);
-                urlConnection.connect();
-
-                if (urlConnection.getResponseCode() == 200) {
-                    inputStream = urlConnection.getInputStream();
-                    jsonResponse = readFromStream(inputStream);
-                } else {
-                    Log.e("Log", "Response" + urlConnection.getResponseCode());
-                }
-            } catch (IOException e){
-                Log.e("Log","Could not receive results",e);
-            } finally {
-                if (urlConnection != null){
-                    urlConnection.disconnect();
-                }
-                if(inputStream != null){
-                    inputStream.close();
-                }
-            }
-            return jsonResponse;
-        }
-
-        /**
-         * Convert the {@link InputStream} to a String
-         */
-        private String readFromStream(InputStream inputStream) throws IOException{
-
-            StringBuilder output = new StringBuilder();
-
-            if(inputStream != null){
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-                BufferedReader reader = new BufferedReader(inputStreamReader);
-                String line = reader.readLine();
-                while (line != null) {
-                    output.append(line);
-                    line = reader.readLine();
-                }
-            }
-            return output.toString();
-        }
-
-        /**
-         * Return {@link News} after parsing out JSON news info
-         */
-
-        private News extractFeatureFromJson(String newsJSON){
-            if (TextUtils.isEmpty(newsJSON)) {
-                return null;
-            }
-
-            try {
-                JSONObject baseJsonResponse = new JSONObject(newsJSON);
-                JSONObject baseJsonResult = baseJsonResponse.getJSONObject("response");
-
-                if (baseJsonResponse.length() > 0){
-                    JSONArray featureArray = baseJsonResult.getJSONArray("results");
-                    JSONObject properties = featureArray.getJSONObject(0);
-
-                    String title = properties.getString("id");
-
-                    return new News(title);
-                }
-            } catch (JSONException e){
-                Log.e("Log", "Error parsing news", e);
-            }
-            return null;
-        }
     }
+
+    @Override
+    public void onLoaderReset(Loader<List<News>> loader){
+        mAdapter.clear();
+    }
+
+
+
 }

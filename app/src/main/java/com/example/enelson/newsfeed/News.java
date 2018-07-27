@@ -2,6 +2,7 @@ package com.example.enelson.newsfeed;
 
 import java.util.Date;
 
+
 /**
  * {@Event} represents a news story for the Guardian API.  It holds the details
  * of the event.
@@ -76,7 +77,7 @@ public class News {
      * Returns url of news story
      */
 
-    public String getURL() {
+    public String getUrl() {
         return mURL;
     }
 }
