@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="sections">
-        <item>@string/technology_section</item>
-        <item>@string/book_section</item>
+    <item>@string/technology_section</item>
+    <item>@string/book_section</item>
+    </array>
+    <array name="section_values">
+    <item>@string/technology_section</item>
+    <item>@string/book_section</item>
     </array>
 </resources>
