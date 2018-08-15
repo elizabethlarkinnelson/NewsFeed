@@ -7,4 +7,8 @@
     <string name="settings_menu_item">Settings</string>
     <string name="settings_title">News Settings</string>
 
+    <string name="sections">Sections</string>
+
+    <string name="book_section" translatable="false">Books</string>
+    <string name="technology_section" translatable="false">Technology</string>
 </resources>
