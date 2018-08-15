@@ -9,7 +9,7 @@
 
     <string name="sections">Sections</string>
 
-    <string name="book_section" translatable="false">Books</string>
-    <string name="technology_section" translatable="false">Technology</string>
-    <string name="default_setting" translatable="false">Science</string>
+    <string name="book_section" translatable="false">books</string>
+    <string name="technology_section" translatable="false">technology</string>
+    <string name="default_setting" translatable="false">science</string>
 </resources>

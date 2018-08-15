@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -97,7 +98,7 @@ public class NewsActivity extends AppCompatActivity
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        String section = sharedPrefs.getString(getString(R.string.sections),getString(R.string.default_setting));
+        String section = sharedPrefs.getString(getString(R.string.default_setting),getString(R.string.default_setting));
 
         Uri baseUri = Uri.parse(GUARDIAN_REQUEST_URL);
 
@@ -106,8 +107,7 @@ public class NewsActivity extends AppCompatActivity
         uriBuilder.appendQueryParameter("section", section);
         uriBuilder.appendQueryParameter("api-key", "b20f1866-b6a1-410c-9333-5ca485b4bcd2");
 
-
-        return new NewsLoader(this, baseUri.toString());
+        return new NewsLoader(this, uriBuilder.toString());
 
     }
 
